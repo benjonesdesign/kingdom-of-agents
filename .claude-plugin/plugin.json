@@ -9,5 +9,17 @@
     "url": "https://www.pipliving.com"
   },
   "homepage": "https://www.pipliving.com/labs/kingdomofagents",
-  "keywords": ["game", "dashboard", "claude-code", "lanes", "pixel-art", "artifact"]
+  "keywords": [
+    "game",
+    "dashboard",
+    "claude-code",
+    "lanes",
+    "pixel-art",
+    "artifact"
+  ],
+  "repository": "https://github.com/benjonesdesign/kingdom-of-agents",
+  "documentationUrl": "https://github.com/benjonesdesign/kingdom-of-agents#readme",
+  "supportUrl": "https://www.pipliving.com/kingdom/support",
+  "privacyPolicyUrl": "https://www.pipliving.com/kingdom/privacy",
+  "termsOfServiceUrl": "https://www.pipliving.com/kingdom/terms"
 }
