@@ -1,0 +1,12 @@
+{
+  "name": "pip-living",
+  "owner": { "name": "Pip Living", "email": "hello@pipliving.com" },
+  "metadata": { "description": "Games and tools from Pip Living Labs." },
+  "plugins": [
+    {
+      "name": "kingdom-of-agents",
+      "source": "./",
+      "description": "Turn your Claude Code projects into a living pixel-art kingdom."
+    }
+  ]
+}

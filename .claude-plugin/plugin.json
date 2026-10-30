@@ -1,0 +1,13 @@
+{
+  "name": "kingdom-of-agents",
+  "displayName": "Kingdom of Agents",
+  "version": "2.9.0",
+  "description": "Turn your Claude Code projects into a living pixel-art kingdom: every project is a town, every lane is an adventurer at work, and you rule from the castle.",
+  "author": {
+    "name": "Pip Living",
+    "email": "hello@pipliving.com",
+    "url": "https://www.pipliving.com"
+  },
+  "homepage": "https://www.pipliving.com/labs/kingdomofagents",
+  "keywords": ["game", "dashboard", "claude-code", "lanes", "pixel-art", "artifact"]
+}
