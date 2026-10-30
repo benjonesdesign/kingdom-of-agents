@@ -27,7 +27,7 @@ To update the game later, say **"Update my Kingdom of Agents"**. Claude republis
 
 ## What it runs and what data it uses
 
-- The plugin contains one skill and one file: `skills/kingdom-of-agents/assets/kingdom.html`, the whole game. The skill tells Claude to publish that file, unchanged, as an Artifact in your own claude.ai account, with a database that only you (and editors you choose) can write to.
+- The plugin contains one skill and the game: `skills/kingdom-of-agents/assets/kingdom.html` and the script files it loads (`kingdom-1.js` and on). The skill tells Claude to publish them, unchanged, as an Artifact in your own claude.ai account, with a database that only you (and editors you choose) can write to.
 - Your kingdom's data (project names and descriptions, lane tasks and progress, roadmaps, your questions and decrees) is written to that Artifact database by your own overseer session. It stays in your Claude account. Pip Living receives none of it.
 - The page loads two fonts, Press Start 2P and VT323, from Google Fonts (fonts.googleapis.com).
 - The page has no analytics or tracking and makes no other network requests. It links to pipliving.com, and to a Stripe checkout page if you choose to buy the Royal Charter. A charter code is checked inside the page, without contacting a server.

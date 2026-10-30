@@ -5,13 +5,14 @@ description: Installs and updates Kingdom of Agents, Pip Living's pixel-art game
 
 # Kingdom of Agents
 
-Kingdom of Agents is a pixel-art game page by Pip Living. Every project the user runs with Claude becomes a town, every lane (Claude Code session) becomes an adventurer, and the user rules from the castle as its King or Queen. The whole game is the single file `assets/kingdom.html` in this skill's folder. It runs as an Artifact page in the user's own account and keeps the kingdom's data in that page's database.
+Kingdom of Agents is a pixel-art game page by Pip Living. Every project the user runs with Claude becomes a town, every lane (Claude Code session) becomes an adventurer, and the user rules from the castle as its King or Queen. The whole game is in this skill's `assets` folder: the page `kingdom.html` and its script files `kingdom-1.js`, `kingdom-2.js` and so on, which the page loads in order. It runs as an Artifact page in the user's own account and keeps the kingdom's data in that page's database.
 
 ## Set up a new kingdom
 
-0. **This skill is the whole job.** "Set up my Kingdom of Agents" means: publish this skill's `assets/kingdom.html` for the user. Don't ask them what the phrase means, and don't turn it into a change to an existing dashboard, roadmap or overseer setup they already run; their existing pages keep working as they are.
+0. **This skill is the whole job.** "Set up my Kingdom of Agents" means: publish this skill's game (`assets/kingdom.html` and its script files) for the user. Don't ask them what the phrase means, and don't turn it into a change to an existing dashboard, roadmap or overseer setup they already run; their existing pages keep working as they are.
 1. **Check for an existing kingdom first.** List the user's artifacts and look for one titled "Kingdom of Agents" (older copies may be titled "Kingdom"). If one exists, ask one question: update that kingdom (keeps its data) or start a separate new one (for example, to try a fresh setup)? With no answer, update. Only make a second kingdom when they choose it, and title it so the two can be told apart ("Kingdom of Agents 2").
-2. **Publish the game.** Publish `assets/kingdom.html` from this skill's folder as a new Artifact. Use it exactly as it is: do not edit, minify or rewrite the file. Pass:
+2. **Publish the game.** Publish `assets/kingdom.html` from this skill's folder as a new Artifact, with every `kingdom-*.js` file in `assets` as its supporting files. Use the files exactly as they are: do not edit, minify, merge or rewrite them. Pass:
+   - `files`: each script under its own name, for example `{"kingdom-1.js": "<this skill's folder>/assets/kingdom-1.js", "kingdom-2.js": "<this skill's folder>/assets/kingdom-2.js", "kingdom-3.js": "<this skill's folder>/assets/kingdom-3.js"}`. The page loads them by these names, so the published names must match exactly.
    - `icon`: `castle`
    - `description`: `My Claude projects as a living pixel-art kingdom.`
    - `capabilities`, exactly:
@@ -40,10 +41,10 @@ Kingdom of Agents is a pixel-art game page by Pip Living. Every project the user
 
 ## Update an existing kingdom
 
-New versions of this plugin bring a newer `assets/kingdom.html`. The user's page doesn't change until it is republished. When the user asks to update or reinstall, or this skill's file is newer than their page (its menu shows "Engine" and a version number):
+New versions of this plugin bring a newer game in `assets`. The user's page doesn't change until it is republished. When the user asks to update or reinstall, or this skill's file is newer than their page (its menu shows "Engine" and a version number):
 
 1. Find their existing kingdom artifact (list their artifacts) and read it first.
-2. Publish this skill's `assets/kingdom.html` to that artifact's URL, unchanged. **Leave out `capabilities`** so the stored declaration (and their data) carries over.
+2. Publish this skill's `assets/kingdom.html` to that artifact's URL, unchanged, with every `kingdom-*.js` file in `assets` as `files` (the same way as a new kingdom), so the page and its scripts stay the same version. **Leave out `capabilities`** so the stored declaration (and their data) carries over.
 3. Tell them it's updated. Their towns, lanes and charter are kept. If the new version changes what the overseer or lanes are told (the release notes in this plugin's CHANGELOG.md say so), remind them to copy the setup prompt from the kingdom again and paste it into their overseer.
 
 ## Notes

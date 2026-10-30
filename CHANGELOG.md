@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.9.2
+
+- The game now comes as a page plus three script files instead of one large file, so the plugin directory can check every file. Nothing in the game changes. To update, ask Claude to update your Kingdom of Agents.
+
+## 2.9.1
+
+- On wide screens the throne room's scroll (and a town's status panel) opens from a scroll button in the right-hand controls.
+- Answering a lane's question now sends a herald out of the throne room, with a messenger riding to that town on the map, just like a decree.
+
 ## 2.9.0
 
 - A new menu: a short summary of each section, then a page for each (kingdom status, how it works, achievements, settings, about).
