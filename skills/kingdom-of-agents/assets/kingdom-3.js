@@ -236,7 +236,7 @@ function renderLink(){const el=document.getElementById('linkState');if(!el)retur
 // ===================== founding the realm: a short guided setup =====================
 // 1 who rules  2 name the kingdom and castle  3 connect the overseer  4 (after the survey) style and name each town.
 // Everything the person picks is written to the store by this page, so the overseer spends no tokens on it.
-const ENGINE_VERSION='2.10.1';
+const ENGINE_VERSION='2.10.2';
 const STYLE_INFO={
   capital:['Capital City','Stone walls, a keep and a fountain square. For your flagship.'],
   port:['Harbour Town','Docks, boats and nets. For marketplaces and anything that trades.'],

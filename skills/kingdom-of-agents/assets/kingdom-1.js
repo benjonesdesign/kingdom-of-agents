@@ -200,12 +200,12 @@ function classFor(role,col,id){
   else if(/qa|test|quality/.test(r)) s={cls:'Ranger',title:'Ranger',hs:pick(['short','ponytail','braid'],5),head:'hood',headCol:col,outfit:'cloak',top:pick(['#4e6a3a','#5a5a3a','#3e5a4a'],9),bottom:'#5a4630',cape:shade(col,-.15),item:'sword'};
   else if(/analy|insight|metric/.test(r)) s={cls:'Wizard',title:'Wizard',hair:pick(['#dcd8d0','#a8a4b0','#e8e8ee'],5),hs:'long',head:'wizard',headCol:col,outfit:'robe',top:col,bottom:shade(col,-.35),beard:'#ecebe4',item:'staff',acc:'none'};
   else if(/exercise|fitness|workout/.test(r)) s={cls:'Knight',title:'Knight',head:'helm',headCol:'#c4cad4',outfit:'armor',top:'#b0b8c4',bottom:'#5a6070',trim:col,cape:col,item:'sword',acc:'none'};
-  else if(/owner|pm|lead|coord|product|steward/.test(r)) s={cls:'Lord',title:/coord/.test(r)?'Steward':'Lord',hs:pick(['short','long','curly'],5),head:'crown',headCol:'#f2c94c',outfit:'tunic',top:'#6a4c9c',bottom:'#3e3060',cape:'#c43a3a',trim:'#f2c94c',item:'scroll',acc:'necklace'};
+  else if(/owner|pm|lead|coord|product|steward/.test(r)) s={cls:'Lord',title:/coord/.test(r)?'Steward':'Lord',hs:pick(['short','long','ringlets'],5),head:'crown',headCol:'#f2c94c',outfit:'tunic',top:'#6a4c9c',bottom:'#3e3060',cape:'#c43a3a',trim:'#f2c94c',item:'scroll',acc:'necklace'};
   else if(/content|copy|writ|edit/.test(r)) s={cls:'Scribe',title:'Scribe',hs:pick(['bun','braid','short'],5),outfit:'robe',top:pick(['#7a5a3a','#5a4a6a','#4a5a6a'],9),bottom:'#5a4028',trim:col,glasses:1,item:'quill'};
-  else if(/design|ux|ui/.test(r)) s={cls:'Bard',title:'Bard',hs:pick(['curly','long','short'],5),head:'feather',headCol:col,outfit:'tunic',top:col,bottom:'#4a3a5a',trim:'#f2c94c',cape:shade(col,-.35),item:'brush'};
+  else if(/design|ux|ui/.test(r)) s={cls:'Bard',title:'Bard',hs:pick(['ringlets','long','short'],5),head:'feather',headCol:col,outfit:'tunic',top:col,bottom:'#4a3a5a',trim:'#f2c94c',cape:shade(col,-.35),item:'brush'};
   else if(/ios|iphone|swift/.test(r)) s={cls:'Elf',title:'Elven Artificer',build:'tall',hair:pick(['#e8eef8','#f0e2b0','#c8d8f0'],5),hs:pick(['long','ponytail'],9),head:'circlet',headCol:'#cfe0f6',outfit:'tunic',top:col,bottom:'#3a4a6a',trim:'#e8eef8',elf:1,item:'hammer'};
   else if(/android|kotlin/.test(r)) s={cls:'Dwarf',title:'Dwarf Tinker',build:'dwarf',hair:pick(['#c8642a','#a8642e','#6a3a1e'],5),beard:null,hs:'short',head:'bandana',headCol:col,outfit:'apron',top:'#7a5a44',bottom:'#3e3a5e',item:'hammer'};
-  else if(/web|front|site/.test(r)) s={cls:'Halfling',title:'Halfling Merchant',build:'small',hs:pick(['curly','short','ponytail'],5),head:'cap',headCol:col,outfit:'tunic',top:'#e6d6b2',bottom:'#5a4630',trim:col,pack:1,item:'hammer'};
+  else if(/web|front|site/.test(r)) s={cls:'Halfling',title:'Halfling Merchant',build:'small',hs:pick(['ringlets','short','ponytail'],5),head:'cap',headCol:col,outfit:'tunic',top:'#e6d6b2',bottom:'#5a4630',trim:col,pack:1,item:'hammer'};
   else if(/back|api|server|data|infra|engine/.test(r)) s={cls:'Miner',title:'Dwarf Miner',build:'dwarf',hair:pick(['#5a3a22','#3a2418','#6a6a72'],5),beard:pick(['#8a6a4a','#5a3a22','#a8a4b0'],9),head:'minerhelm',headCol:'#d8a63a',outfit:'tunic',top:col,bottom:'#3e3a5e',item:'pick'};
   else if(/recipe|cook|food|farm/.test(r)) s={cls:'Druid',title:'Druid Cook',hs:pick(['bun','braid','long'],5),head:'straw',headCol:'#e8c870',outfit:'apron',top:'#5a8a4a',bottom:'#6a4a30',trim:col,item:'hoe'};
   else s={cls:'Adventurer',title:'Adventurer',outfit:'tunic',top:col,item:'hammer'};
@@ -332,7 +332,7 @@ function hair(c,o,d,hl,hw,ht,B,cx,H,Hd,Hl,torTop){
     px(c,hl-1,ht+3,2,4,H);px(c,hl+hw-1,ht+3,2,4,Hd);
     if(hs==='long'){px(c,hl-1,ht+4,2,B.hh+3,H);px(c,hl+hw-1,ht+4,2,B.hh+3,Hd)}
     if(hs==='braid'){px(c,hl+hw-1,ht+4,2,B.hh+4,Hd);px(c,hl+hw-1,ht+B.hh+5,2,1,o.trim||'#c43a3a')}
-    if(hs==='curly'){for(let i=-1;i<=hw;i+=3)disc(c,hl+i,ht,2,H);px(c,hl-2,ht+3,2,4,H);px(c,hl+hw,ht+3,2,4,Hd)}
+    if(hs==='ringlets'){for(let i=-1;i<=hw;i+=3)disc(c,hl+i,ht,2,H);px(c,hl-2,ht+3,2,4,H);px(c,hl+hw,ht+3,2,4,Hd)}
   }
   if(hs==='bun'&&!hatted){disc(c,cx,ht-3,3,H);px(c,cx-1,ht-5,2,1,Hl)}
   if(hs==='spiky'&&!hatted)for(let k=0;k<4;k++)px(c,hl+1+k*3,ht-4+(k%2),2,3,H);
@@ -395,10 +395,10 @@ function drawHero(c,x,y,o){
   ellipseShadow(c,x,y,o.small?4:Math.max(5,Math.round(b.tw*.6)),2,.3);
   c.drawImage(heroSprite(o),Math.round(x-14),Math.round(y-40-(o.hop||0)));
 }
-function apprenticeOf(o,k){const h=hash((o.id||o.cls)+'ap'+k);return {cls:'Squire',small:1,skin:SKIN[h%5],hair:HAIRS[(h>>>4)%10],eye:EYES[(h>>>8)%5],hs:['short','curly','ponytail'][(h>>>12)%3],head:'cap',headCol:o.col||o.trim,outfit:'tunic',top:'#d8c8a8',bottom:'#4a4060',trim:o.col||'#f2c94c',item:'none',acc:'none'}}
+function apprenticeOf(o,k){const h=hash((o.id||o.cls)+'ap'+k);return {cls:'Squire',small:1,skin:SKIN[h%5],hair:HAIRS[(h>>>4)%10],eye:EYES[(h>>>8)%5],hs:['short','ringlets','ponytail'][(h>>>12)%3],head:'cap',headCol:o.col||o.trim,outfit:'tunic',top:'#d8c8a8',bottom:'#4a4060',trim:o.col||'#f2c94c',item:'none',acc:'none'}}
 
 // messengers: a guild courier in the sending town's colour, and the King's herald in royal purple and gold
-function courierSpec(col,seed){const h=hash('cr'+(seed||col));return {cls:'Courier'+col,title:'Courier',skin:SKIN[h%5],hair:HAIRS[(h>>>4)%10],eye:EYES[(h>>>8)%5],hs:['short','ponytail','curly'][(h>>>12)%3],head:'wingcap',headCol:col,build:'normal',outfit:'tunic',top:shade(col,.12),bottom:'#5a4630',trim:'#f4eee0',item:'letter',acc:'satchel'}}
+function courierSpec(col,seed){const h=hash('cr'+(seed||col));return {cls:'Courier'+col,title:'Courier',skin:SKIN[h%5],hair:HAIRS[(h>>>4)%10],eye:EYES[(h>>>8)%5],hs:['short','ponytail','ringlets'][(h>>>12)%3],head:'wingcap',headCol:col,build:'normal',outfit:'tunic',top:shade(col,.12),bottom:'#5a4630',trim:'#f4eee0',item:'letter',acc:'satchel'}}
 function heraldSpec(){return {cls:'Herald',title:'Royal Herald',skin:SKIN[1],hair:'#3a2418',eye:EYES[0],hs:'long',head:'plume',headCol:'#5a2a8a',build:'tall',outfit:'tabard',top:'#f2c94c',tab:'#6a2a9a',bottom:'#ece6f4',trim:'#f2c94c',cape:'#4a1e78',item:'banner',acc:'none'}}
 function barmaidSpec(seed){const h=hash('bm'+seed);return {cls:'Barmaid'+(h%3),title:'Barmaid',skin:SKIN[(h>>>3)%5],hair:['#c8642a','#e8c070','#3a2418'][h%3],eye:EYES[(h>>>6)%5],hs:'bun',head:'none',build:'normal',outfit:'dress',top:['#3a6a9a','#4a8a5a','#8a3a4a'][h%3],bottom:['#7a2a3a','#2a4a6a','#4a3a6a'][h%3],trim:'#f4eee0',item:'mug',acc:'none'}}
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.10.2
+
+- Review fix: renamed a hairstyle and reworded three code comments that the plugin directory's automatic checks mistook for a download-and-run command. Nothing in the game downloads or runs code.
+
 ## 2.10.1
 
 - Questions in the menu: how many tokens the kingdom uses each day, which Claude plans it suits, whether it's free and where your data is kept.

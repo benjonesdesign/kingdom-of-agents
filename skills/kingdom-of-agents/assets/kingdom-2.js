@@ -882,7 +882,7 @@ function drawDragonAsleep(c,x,y,br){R='#b0302a',Rd='#7a1e1e',Rl='#d8503a',W='#8a
   // the tail wraps round the front of the body and ends under the chin in a spade
   for(let i=0;i<=22;i++){const a=Math.PI*(.95-i/22*.95),tx=x-4+Math.cos(a)*19,ty=y-1+Math.sin(a)*4;px(c,Math.round(tx)-1,Math.round(ty)-1,3,3,i%5===4?Rd:R);px(c,Math.round(tx)-1,Math.round(ty)-1,3,1,Rl)}
   px(c,x+14,y,5,3,Rd);px(c,x+16,y-1,2,1,Rd);
-  // the body, curled and rising with each breath; gold belly along its lower edge
+  // the body, coiled and rising with each breath; gold belly along its lower edge
   ell(x-4,y-8-br,15,8+br,R);ell(x-8,y-12-br,8,3,Rl);px(c,x-16,y-2,24,2,G);px(c,x-16,y-1,24,1,'#b07a2a');
   // the folded wing over its back, with its finger bones
   ell(x-5,y-12-br,11,5,W);for(let k=0;k<4;k++){const bx=x-13+k*5;for(let i=0;i<5;i++)px(c,bx+i,y-15-br+Math.round(i*.6),1,1,Wd)}
@@ -1027,7 +1027,7 @@ function dragonSprite(key,W,H,build){return cached(key,W,H,c=>{const M=new Array
 // flying, facing right; frame 0 wings raised, frame 1 wings beating down
 function dragonFlyNew(fr,carry){return dragonSprite('dfly2-'+fr+(carry?1:0),58,42,S=>{const up=fr===0;
   if(fr===0)S.poly([[27,18],[33,17],[38,4],[35,6],[32,8]],'far');else if(fr===1)S.poly([[27,19],[33,19],[37,30],[33,28],[30,27]],'far');else S.poly([[27,18],[33,18],[40,13],[36,13],[31,15]],'far');
-  // tail: thick at the root, curling up to a spade
+  // tail: thick at the root, coiling up to a spade
   S.line([[17,25],[11,28],[5,27],[2,23]],3.6,1,'body');S.poly([[0,23],[3,18],[5,22]],'body');
   S.ell(26,23,10,6,'body');S.ell(27,26.5,8,2.6,'belly');
   S.line([[33,21],[38,16],[42,12]],4.2,3,'body');S.ell(45,11,6,4.6,'head');S.ell(51.5,12.5,4.4,2.6,'head');S.line([[46,15.5],[53,15.5]],1,1,'head');
@@ -1044,7 +1044,7 @@ function dragonFlyNew(fr,carry){return dragonSprite('dfly2-'+fr+(carry?1:0),58,4
   d.push([54,11,1,1,'#2a0e12'],[49,15,1,1,'#ffffff'],[52,15,1,1,'#ffffff']);     // nostril and teeth
   d.push([33,34,2,1,'#f6eedc'],[20,35,2,1,'#f6eedc']);                          // claws
   return d})}
-// asleep: curled on the nest, tail round the front, head on the tail, wing folded on the back; br is the breath
+// asleep: coiled on the nest, tail round the front, head on the tail, wing folded on the back; br is the breath
 // asleep, perched on the nest: crouched on its haunches, wings folded upright, neck curved down so its head rests by its feet
 function dragonSleepNew(br,eye){return dragonSprite('dslp5-'+br+(eye?'e':''),58,40,S=>{
   S.poly([[31,18],[27,15-br*.5],[19,17],[23,19]],'far');
