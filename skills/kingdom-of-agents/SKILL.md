@@ -27,10 +27,11 @@ Kingdom of Agents is a pixel-art game page by Pip Living. Every project the user
   {"path":"decrees","read":"view","write":"admin"},
   {"path":"roadmaps","read":"view","write":"admin"},
   {"path":"charter","read":"admin","write":"admin"}]},
- "user":{}}
+ "user":{},
+ "mcp":{"servers":[{"server":"Claude Code Remote","tools":["fire_trigger"]}]}}
 ```
 
-   These rules let anyone the user shares the kingdom with look around, while only the user (and editors they choose) can change it. The `charter` path holds the user's Royal Charter code and stays private to them.
+   These rules let anyone the user shares the kingdom with look around, while only the user (and editors they choose) can change it. The `charter` path holds the user's Royal Charter code and stays private to them. `mcp` lets the page start a cloud project's Product Owner (a scheduled task of the user's own) the moment they send it a decree or an answer; the page asks the user before its first use.
 3. **Tell the page its own link.** If you can write to the new artifact's database (the tool that reads and writes an artifact's shared database), create the document `realm/config` with one field, `url`, set to the URL you just published. The welcome then skips asking the user to paste the link. If you can't write to it, skip this step; the welcome asks for the link instead.
 4. **Hand it over.** Tell the user, in two or three sentences, that their kingdom is ready and what happens next:
    - The kingdom opens on a short welcome ("Found your realm"). They choose their name and whether they rule as King or Queen, name the kingdom and its castle, then copy the **setup prompt** it shows and paste it once into the Claude Code session that coordinates their projects (their overseer). That session surveys their projects, builds the towns, and keeps them live from then on.
@@ -44,7 +45,7 @@ Kingdom of Agents is a pixel-art game page by Pip Living. Every project the user
 New versions of this plugin bring a newer game in `assets`. The user's page doesn't change until it is republished. When the user asks to update or reinstall, or this skill's file is newer than their page (its menu shows "Engine" and a version number):
 
 1. Find their existing kingdom artifact (list their artifacts) and read it first.
-2. Publish this skill's `assets/kingdom.html` to that artifact's URL, unchanged, with every `kingdom-*.js` file in `assets` as `files` (the same way as a new kingdom), so the page and its scripts stay the same version. **Leave out `capabilities`** so the stored declaration (and their data) carries over.
+2. Publish this skill's `assets/kingdom.html` to that artifact's URL, unchanged, with every `kingdom-*.js` file in `assets` as `files` (the same way as a new kingdom), so the page and its scripts stay the same version. **Leave out `capabilities`** so the stored declaration (and their data) carries over, unless the stored declaration has no `mcp` entry: then pass the full `capabilities` above once, which keeps the same database rules and adds it.
 3. Tell them it's updated. Their towns, lanes and charter are kept. If the new version changes what the overseer or lanes are told (the release notes in this plugin's CHANGELOG.md say so), remind them to copy the setup prompt from the kingdom again and paste it into their overseer.
 
 ## Notes

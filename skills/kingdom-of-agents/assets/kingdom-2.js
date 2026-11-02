@@ -1,4 +1,4 @@
-// Kingdom of Agents, part 2 of 3. The parts share one scope and load in order from kingdom.html.
+// Kingdom of Agents, part 2 of 4. The parts share one scope and load in order from kingdom.html.
 // ===================== overworld =====================
 const world={cv:document.getElementById('worldCv'),towns:[],edges:[],sel:null};
 world.ctx=world.cv.getContext('2d');
@@ -489,6 +489,7 @@ function drawWorld(t,dt){
     if(tp.k==='there')Ln._wb={x:pos.x,y:pos.y-30}}
   const msgs=messengers(t);
   if(world.bridge){drawDrawbridge(c,t,dt,msgs);if(world.bridge.guards)world.bridge.guards.forEach(([gx,gy,ox],k)=>drawMini(A,gx*TS+8+ox,gy*TS+10,guardSpec(k),'down',0))}
+  if(typeof drawCrossroads==='function')drawCrossroads(A,t);
   for(const m of msgs){drawRider(A,m.x,m.y,'royal','#6a2a9a',m.walk?m.dir:'down',m.walk?Math.floor(t*4):0);handTorch(A,m.x+(m.dir==='left'?-9:9),m.y-12,L,t,lights);if(!m.walk)bubbleQ.push([m.x,m.y-30,'scroll'])}
   const riderGlow=glowQ.splice(gq0);
   // a flock of birds now and then
@@ -555,7 +556,7 @@ function renderLabels(){
   requestAnimationFrame(()=>{const W=box.clientWidth;if(!W)return;for(const b of box.children){if(!b.style.left.endsWith('%'))continue;const w=b.offsetWidth,cx=parseFloat(b.style.left)/100*W,c=clamp(cx,w/2+4,W-w/2-4);if(c!==cx)b.style.left=(c/W*100)+'%'}})
 }
 function townAt(e){const r=world.cv.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*world.W,y=(e.clientY-r.top)/r.height*world.H;return world.towns.find(T=>x>=T.x-6&&x<=T.x+T.w+6&&y>=T.y-6&&y<=T.y+T.h+20)}
-world.cv.addEventListener('click',e=>{if(WDRAG.moved){WDRAG.moved=false;return}if(eggWorldTap(e))return;if(dragonAt(e)){wakeDragon();return}if(tentAt(e)){openTent();return}const T=townAt(e);if(T)travelTo(T.v)});
+world.cv.addEventListener('click',e=>{if(WDRAG.moved){WDRAG.moved=false;return}if(typeof crossroadsTap==='function'&&crossroadsTap(e))return;if(eggWorldTap(e))return;if(dragonAt(e)){wakeDragon();return}if(tentAt(e)){openTent();return}const T=townAt(e);if(T)travelTo(T.v)});
 world.cv.addEventListener('pointermove',e=>{const T=townAt(e);world.hover=T?T.name:null;world.cv.style.cursor=T||tentAt(e)||dragonAt(e)?'pointer':'default'});
 world.cv.addEventListener('pointerleave',()=>world.hover=null);
 const WDRAG={ptrs:new Map(),moved:false,start:null,pinch:null};
@@ -1313,10 +1314,11 @@ function banner(c,x,y,col,kind,pct,t){
   const txt=Math.round(pct)+'%',tw=txt.length*4-1;px(c,x+W/2-tw/2-2,y+H+6,tw+4,9,RAMP.wood[1]);px(c,x+W/2-tw/2-1,y+H+7,tw+2,7,RAMP.gold[2]);pixText(c,txt,x+W/2-tw/2,y+H+8,RAMP.wood[0]);
 }
 function court(){return COURT}
-const COURT={cv:null,ctx:null,W:352,H:248,OX:0,OY:0,t0:0,sent:null,hit:null,parts:[],people:{},banners:[],cam:null};
+var CDY=14;// the throne, dais and everything on them sit this far below the banners, so each banner's plaque shows above the throne
+const COURT={cv:null,ctx:null,W:432,H:320,OX:0,OY:0,t0:0,sent:null,hit:null,parts:[],people:{},banners:[],cam:null};
 // the hall carries on past the dais in every direction, so zooming out fills the screen with castle
 function courtBG(){
-  const {W,H,OX,OY,FW,FH}=COURT,[cv,c]=mk(FW,FH),S=RAMP.stone,WB=OY+86,cx=OX+W/2;
+  const {W,H,OX,OY,FW,FH}=COURT,[cv,c]=mk(FW,FH),S=RAMP.stone,WB=OY+86+CDY,cx=OX+W/2;
   // back wall, carried up and out
   px(c,0,0,FW,WB,S[1]);for(let yy=WB-82;yy>-6;yy-=6){px(c,0,yy,FW,1,S[0]);for(let xx=(((WB-82-yy)/6)%2?8:0)+((OX)%16);xx<FW;xx+=16)px(c,xx,yy-5,1,5,S[0])}
   for(let yy=WB-86;yy>-6;yy-=6)px(c,0,yy+1,FW,1,shade(S[1],.12));
@@ -1327,15 +1329,15 @@ function courtBG(){
   win(OX+18);win(OX+W-40);for(let wx=OX+18-96;wx>-30;wx-=96)win(wx);for(let wx=OX+W-40+96;wx<FW+10;wx+=96)win(wx);
   // checked floor everywhere, red carpet running the length of the hall
   for(let y=WB;y<FH;y+=16)for(let x=OX%16-16;x<FW;x+=16){const d=(((x-OX)+(y-OY))/16)%2!==0;px(c,x,y,16,16,d?S[2]:S[3]);px(c,x,y,16,1,d?S[3]:S[4]);px(c,x,y+15,16,1,S[1])}
-  px(c,cx-18,OY+110,36,FH-OY-110,'#8a2030');px(c,cx-16,OY+110,32,FH-OY-110,'#b02a3a');px(c,cx-18,OY+110,2,FH-OY-110,RAMP.gold[2]);px(c,cx+16,OY+110,2,FH-OY-110,RAMP.gold[2]);for(let y=OY+118;y<FH;y+=12)px(c,cx-2,y,4,4,RAMP.gold[2]);
+  px(c,cx-18,OY+110+CDY,36,FH-OY-110,'#8a2030');px(c,cx-16,OY+110+CDY,32,FH-OY-110,'#b02a3a');px(c,cx-18,OY+110+CDY,2,FH-OY-110,RAMP.gold[2]);px(c,cx+16,OY+110+CDY,2,FH-OY-110,RAMP.gold[2]);for(let y=OY+118+CDY;y<FH;y+=12)px(c,cx-2,y,4,4,RAMP.gold[2]);
   // dais and steps
-  for(let s=0;s<3;s++){const w=150-s*20,y=OY+88+s*8;px(c,cx-w/2,y,w,8,S[3]);px(c,cx-w/2,y,w,1,S[4]);px(c,cx-w/2,y+7,w,1,S[1])}
-  px(c,cx-30,OY+88,60,22,'#b02a3a');px(c,cx-30,OY+88,60,2,'#d04050');px(c,cx-30,OY+108,60,2,RAMP.gold[2]);
+  for(let s=0;s<3;s++){const w=150-s*20,y=OY+88+CDY+s*8;px(c,cx-w/2,y,w,8,S[3]);px(c,cx-w/2,y,w,1,S[4]);px(c,cx-w/2,y+7,w,1,S[1])}
+  px(c,cx-30,OY+88+CDY,60,22,'#b02a3a');px(c,cx-30,OY+88+CDY,60,2,'#d04050');px(c,cx-30,OY+108+CDY,60,2,RAMP.gold[2]);
   // rows of pillars down both sides of the hall
   COURT.sconces=[];
   const pillar=(x,y)=>{px(c,x,y-60,16,70,S[3]);px(c,x,y-60,3,70,S[4]);px(c,x+13,y-60,3,70,S[1]);px(c,x-2,y-62,20,4,S[4]);px(c,x-2,y+6,20,4,S[2])};
   const cols=[OX+44,OX+W-60];for(let x=OX+44-112;x>-20;x-=112)cols.push(x);for(let x=OX+W-60+112;x<FW+4;x+=112)cols.push(x);
-  for(const x of cols)for(let y=WB;y<FH+70;y+=70){pillar(x,y);if(y===WB||(y-WB)%140===0)COURT.sconces.push([x+8-OX,y-40-OY])}
+  for(const x of cols)for(let y=WB;y<FH+128;y+=128){pillar(x,y);if(true)COURT.sconces.push([x+8-OX,y-40-OY])}
   return cv;
 }
 function drawCourt(t,dt){
@@ -1351,6 +1353,8 @@ function drawCourt(t,dt){
   C.banners=[];projs.forEach((v,i)=>{const bx=Math.round(64+i*gap)-11,rm=ROADMAPS[v.name],pct=projectProgress(v).pct;banner(c,bx,8,themeColour(v),EMBLEM[v.thKey]||'coin',pct,t);C.banners.push({x:bx-3,y:6,w:28,h:62,v,pct,next:rm&&rm.next||''})});
   // wall sconces along the hall
   for(const [sx,sy] of C.sconces||[]){const f=Math.floor(t*8+sx)%2;px(c,sx-2,sy+4,4,3,RAMP.gold[1]);px(c,sx-2,sy-1-f,4,5,'#ff9a3c');px(c,sx-1,sy-3-f,2,3,'#ffe07a');lights.push([sx,sy,34])}
+  // braziers, throne, the monarch and the scroll table sit CDY lower than the banners
+  const nL=lights.length,nB=bubbleQ2.length;c.translate(0,CDY);
   // braziers
   for(const bx of [cx-62,cx+62]){px(c,bx-6,96,12,4,RAMP.gold[1]);px(c,bx-2,100,4,12,RAMP.gold[0]);px(c,bx-8,92,16,5,RAMP.gold[2]);const f=Math.floor(t*10+bx)%3;px(c,bx-5,84-f,10,9+f,'#ff7a2a');px(c,bx-3,80-f,6,8,'#ffb03a');px(c,bx-1,77-f,2,5,'#ffe07a');lights.push([bx,88,58]);if(Math.random()<.2)C.parts.push({x:bx+rnd(-3,3),y:80,vx:rnd(-4,4),vy:-18,life:.8,c:'#ffd86b'})}
   // the throne
@@ -1363,31 +1367,34 @@ function drawCourt(t,dt){
   const kspec=classFor('overseer','#f2c94c','overseer');
   drawHero(c,cx,96,Object.assign({},kspec,{dir:'down',pose:sentRecently?'talk':'sit',frame:Math.floor(t*4),sleep:ks==='idle'&&Math.floor(t/2)%2===0,breath:Math.floor(t*1.5)%2}));
   if(ks==='idle')bubbleQ2.push([cx,56,'z']);else if(sentRecently)bubbleQ2.push([cx,56,'chat']);
-  // the scroll of asks, unrolling down the steps as asks pile up
-  const open=ASKS.filter(a=>a.status!=='answered'),len=Math.min(H-112,14+open.length*12),sx=cx+30,sy=76;
-  px(c,sx-2,sy,30,4,RAMP.wood[2]);px(c,sx-2,sy,30,1,RAMP.wood[3]);disc(c,sx-2,sy+2,3,RAMP.wood[1]);disc(c,sx+28,sy+2,3,RAMP.wood[1]);
-  for(let yy=0;yy<len;yy++){const curl=yy>len-4?1:0;px(c,sx,sy+4+yy,26,1,yy%2?'#f2e6c4':'#ece0bc');px(c,sx,sy+4+yy,1,1,'#c8b48a');px(c,sx+25,sy+4+yy,1,1,'#c8b48a')}
-  open.forEach((a,i)=>{const ly=sy+8+i*12;if(ly>sy+len-4)return;const pc=(villages.get(a.project)?themeColour(villages.get(a.project)):'#8a7a5a');disc(c,sx+5,ly+3,2,pc);px(c,sx+10,ly+1,13,1,'#6a5a3a');px(c,sx+10,ly+4,10-(i%3)*2,1,'#8a7a5a');if(a.urgent){disc(c,sx+21,ly+6,2,'#c43a3a')}});
-  px(c,sx-2,sy+4+len,30,4,RAMP.wood[2]);disc(c,sx-2,sy+6+len,3,RAMP.wood[1]);disc(c,sx+28,sy+6+len,3,RAMP.wood[1]);
-  C.hit={x:sx-4,y:sy-2,w:34,h:len+12};
-  if(!open.length){px(c,sx+6,sy+8,14,1,'#8a7a5a')}
+  // a small table beside the throne, the scroll of asks rolled on it with its end hanging over the edge
+  {const open=ASKS.filter(a=>a.status!=='answered'),tx=cx+24,ty=90,Wd=RAMP.wood,hang=6+Math.min(open.length,5)*4;
+   ellipseShadow(c,tx+11,ty+18,12,2,.3);px(c,tx+2,ty+4,2,14,Wd[0]);px(c,tx+18,ty+4,2,14,Wd[0]);px(c,tx,ty,22,5,Wd[2]);px(c,tx,ty,22,1,Wd[3]);px(c,tx,ty+4,22,1,Wd[0]);
+   for(let yy=0;yy<hang;yy++)px(c,tx+6,ty+2+yy,10,1,yy%2?'#f2e6c4':'#ece0bc');px(c,tx+6,ty+2+hang,10,1,'#c8b48a');
+   open.slice(0,5).forEach((a,i)=>{const pv=villages.get(a.project);px(c,tx+7,ty+4+i*4,2,2,pv?themeColour(pv):'#8a7a5a');px(c,tx+10,ty+5+i*4,5,1,'#8a7a5a');if(a.urgent)px(c,tx+15,ty+4+i*4,1,2,'#c43a3a')});
+   px(c,tx+4,ty-3,14,4,'#ece0bc');px(c,tx+4,ty-3,14,1,'#fff6dc');disc(c,tx+4,ty-1,2,'#c8b48a');disc(c,tx+18,ty-1,2,'#c8b48a');
+   if(open.length&&Math.floor(t*2)%2===0)px(c,tx+10,ty-8,2,3,'#f0b440');
+   C.hit={x:tx-3,y:ty-8+CDY,w:28,h:hang+20}}
+  c.translate(0,-CDY);for(let k=nL;k<lights.length;k++)lights[k][1]+=CDY;for(let k=nB;k<bubbleQ2.length;k++)bubbleQ2[k][1]+=CDY;
+  gameCourtDraw(c,t);
+  if(typeof drawCouncilTable==='function'){drawCouncilTable(c,t);drawCourtQueue(c,t)}
   // guards by the door and a herald who runs out when a decree is sent
-  [[cx-30,H-12],[cx+30,H-12]].forEach(([gx,gy],k)=>drawHero(c,gx,gy,Object.assign(guardSpec(k),{dir:'up',pose:'idle',breath:Math.floor(t*1.4+k)%2})));
+  [[cx-36,184],[cx+36,184],[cx-36,244],[cx+36,244],[cx-36,304],[cx+36,304]].forEach(([gx,gy],k)=>drawHero(c,gx,gy,Object.assign(guardSpec(k),{dir:gx<cx?'right':'left',pose:'idle',breath:Math.floor(t*1.4+k)%2})));
   // one messenger per town the decree goes to: they file in up the carpet, line up before the throne, take their scrolls and leave
   const nM=Math.min(8,C.sentN||1);if(C.sent&&t-C.sent<13+nM*.6){const far=H+(C.OY?Math.min(C.OY,90):40);
-    for(let k=0;k<nM;k++){const e=t-C.sent-k*.6;if(e<0||e>13)continue;const lx=cx+6+Math.round((k-(nM-1)/2)*18),near=118+(k%2)*6;let y,x,dir,walk=true,pose='idle',item='none';
+    for(let k=0;k<nM;k++){const e=t-C.sent-k*.6;if(e<0||e>13)continue;const lx=cx+6+Math.round((k-(nM-1)/2)*18),near=118+CDY+(k%2)*6;let y,x,dir,walk=true,pose='idle',item='none';
       if(e<4.5){const f=e/4.5;y=far+(near-far)*f;x=f<.7?cx+6:cx+6+(lx-cx-6)*((f-.7)/.3);dir=f<.7||Math.abs(lx-cx-6)<2?'up':(lx>cx+6?'right':'left')}
       else if(e<8){y=near;x=lx;dir='up';walk=false;pose=Math.floor(e*2+k)%2?'talk':'idle';if(e>6)item='scroll'}
       else{const f=(e-8)/5;y=near+(far-near)*f;x=f<.3?lx+(cx+6-lx)*(f/.3):cx+6;dir=f<.3&&Math.abs(lx-cx-6)>2?(lx>cx+6?'left':'right'):'down';item='scroll'}
       drawHero(c,x,y,Object.assign(heraldSpec(),{dir,walk,frame:Math.floor(t*8+k),pose,item,breath:Math.floor(t*1.5+k)%2}));
       if(walk&&k===0&&Math.floor(t*4)!==C.stepK){C.stepK=Math.floor(t*4);sfx3(C,x,y,'step',.8)}
       if(!walk&&k===0)bubbleQ2.push([x,y-40,e<6?'...':'scroll'])}}
-  C.parts=C.parts.filter(q=>(q.life-=dt)>0);for(const q of C.parts){q.x+=q.vx*dt;q.y+=q.vy*dt;px(c,q.x,q.y,1,1,q.c)}
+  C.parts=C.parts.filter(q=>(q.life-=dt)>0);for(const q of C.parts){q.x+=q.vx*dt;q.y+=q.vy*dt;px(c,q.x,q.y+CDY,1,1,q.c)}
   c.setTransform(1,0,0,1,0,0);
   applyLight(c,C.FW,C.FH,{dark:L.night?.38:.12,tint:'30,20,46',night:1,indoor:1},lights.map(([x,y,r])=>[x+C.OX,y+C.OY,r]));
   c.setTransform(1,0,0,1,C.OX,C.OY);
   for(const [x,y,k] of bubbleQ2.splice(0))bubble(c,x,y,k,t);
-  if(C.sel==='king'){const ay=46-Math.round(Math.abs(Math.sin(t*4))*3);px(c,cx-5,ay-5,11,2,'#f0b440');px(c,cx-4,ay-3,9,2,'#f0b440');px(c,cx-2,ay-1,5,2,'#f0b440');px(c,cx-1,ay+1,3,1,'#f0b440')}
+  if(C.sel==='king'){const ay=46+CDY-Math.round(Math.abs(Math.sin(t*4))*3);px(c,cx-5,ay-5,11,2,'#f0b440');px(c,cx-4,ay-3,9,2,'#f0b440');px(c,cx-2,ay-1,5,2,'#f0b440');px(c,cx-1,ay+1,3,1,'#f0b440')}
   c.setTransform(1,0,0,1,0,0);
 }
 const bubbleQ2=[];
@@ -1440,186 +1447,4 @@ function renderPack(cv,W){
   const keep=Math.min(H,y+12),[tc,tx]=mk(W,keep);tx.drawImage(cv,0,0);cv.height=keep;cv.getContext('2d').drawImage(tc,0,0);
   return keep;
 }
-
-// ===================== the court: asks, decrees, roadmaps =====================
-let LOCAL_URL='';try{LOCAL_URL=localStorage.getItem('kingdom-url')||''}catch{}
-function artUrl(){return REALM.url||LOCAL_URL||"(this page's claude.ai artifact link: copy it from the Share menu)"}
-let ASKS=[],DECREES=[],ROADMAPS={},STORE=null,courtLive=false;
-// what we can see of the link to the overseer and the lanes: the store, the overseer's heartbeat, and live lane records
-const LINK={store:false,overseer:null,lanes:0,newest:null,projects:0};
-const SAMPLE_ASKS=[
- {id:'s-ask-1',project:'Stream Share',title:'Which where-to-watch source should we use?',detail:'The cheaper one has no links straight into the streaming apps.',recommendation:'Launch on the one with deep links; look at pricing again after the beta.',urgent:1,status:'open'},
- {id:'s-ask-2',project:'Baby Rota',title:'Invite the first family to the beta now?',detail:'The first build is ready.',recommendation:'Yes, add them to the internal test group today.',status:'open'},
- {id:'s-ask-3',project:'Seek TCG',title:'Charge per listing or a monthly plan?',detail:'Sellers in interviews were split.',recommendation:'Start with a monthly plan and a free tier of 20 listings.',status:'open'},
- {id:'s-ask-4',project:'Pip',title:'Approve the new landing page copy',detail:'Draft is ready for review.',recommendation:'Approve and let the website lane publish.',status:'open'},
- {id:'s-ask-5',project:'Coinage',title:'Round shared bills up or to the penny?',detail:'Both pass the totals cross-check.',recommendation:'To the penny, with the odd penny going to whoever paid.',urgent:1,status:'open'},
-];
-const SAMPLE_DECREES=[{id:'s-dec-1',to:'Pip',text:'Get the weaning food list ready for Baby Rota before the movement plans.',status:'delivered',createdAt:new Date(Date.now()-3600e3).toISOString(),note:'Owner moved it to the top of the recipes lane.'}];
-ASKS=SAMPLE_ASKS.map(a=>({...a}));DECREES=SAMPLE_DECREES.map(d=>({...d}));
-function cleanAsk(id,a){return {id,project:String(a.project||'').slice(0,40),title:String(a.title||a.question||'').slice(0,160),detail:String(a.detail||'').slice(0,400),recommendation:String(a.recommendation||'').slice(0,400),urgent:!!a.urgent,status:a.status==='answered'?'answered':'open',answer:String(a.answer||'').slice(0,600),action:String(a.action||''),answeredAt:String(a.answeredAt||''),relayed:a.relayed!==false,createdAt:String(a.createdAt||'')}}
-function cleanDecree(id,d){const st=['queued','delivered','done','unreachable'].includes(d.status)?d.status:'queued';return {id,lanes:Array.isArray(d.lanes)?d.lanes.slice(0,24).map(x=>String(x).slice(0,80)):[],kind:['message','nudge'].includes(d.kind)?d.kind:'decree',to:String(d.to||'all').slice(0,64),text:String(d.text||'').slice(0,1200),status:st,createdAt:String(d.createdAt||''),note:String(d.note||'').slice(0,300),deliveredTo:String(d.deliveredTo||'').slice(0,80)}}
-function toast(msg){document.querySelectorAll('.toast').forEach(x=>x.remove());const t=document.createElement('div');t.className='toast';t.setAttribute('role','status');t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
-function projectNames(){return [...villages.values()].filter(v=>v.thKey!=='crown').map(v=>v.name)}
-function renderCourt(){
-  if(!$('askList'))return;
-  const open=ASKS.filter(a=>a.status!=='answered'),done=ASKS.filter(a=>a.status==='answered');
-  $('scrollH').textContent=`THE ${monarch().toUpperCase()}'S SCROLL · ${open.length} ASK${open.length===1?'':'S'}`;
-  $('scrollHint').textContent=open.length?(courtLive?'Your open asks from every project. Approve the recommendation or reply in your own words.':'Sample asks. Connect the overseer below to see your real ones.'):'Nothing is waiting on you.';
-  const ul=$('askList');ul.innerHTML='';
-  for(const a of open){const v=villages.get(a.project),col=v?themeColour(v):'#8a7a5a',li=document.createElement('li');li.className='ask';li.style.setProperty('--ac',col);
-    const who=document.createElement('div');who.className='who';const pj=document.createElement('span');pj.className='proj';pj.style.background=col;pj.style.color='#fffaf0';pj.textContent=(a.project||'ALL').toUpperCase();who.appendChild(pj);
-    if(a.urgent){const u=document.createElement('span');u.className='urg';u.textContent='URGENT';who.appendChild(u)}
-    const q=document.createElement('div');q.className='q';q.textContent=a.title;
-    li.append(who,q);
-    if(a.detail){const d=document.createElement('div');d.className='rec';d.textContent=a.detail;li.appendChild(d)}
-    if(a.recommendation){const r=document.createElement('div');r.className='rec';r.innerHTML='<b>Recommended:</b> ';r.appendChild(document.createTextNode(a.recommendation));li.appendChild(r)}
-    const acts=document.createElement('div');acts.className='acts';
-    const ok=document.createElement('button');ok.type='button';ok.className='btn primary';ok.textContent='APPROVE';
-    const rp=document.createElement('button');rp.type='button';rp.className='btn';rp.textContent='REPLY';
-    acts.append(ok,rp);li.appendChild(acts);
-    const box=document.createElement('div');box.hidden=true;const ta=document.createElement('textarea');ta.id='reply-'+a.id;ta.setAttribute('aria-label','Your reply to: '+a.title);ta.placeholder='Your answer';
-    const send=document.createElement('button');send.type='button';send.className='btn primary';send.textContent='SEND REPLY';send.style.marginTop='8px';box.append(ta,send);li.appendChild(box);
-    ok.onclick=()=>answerAsk(a,'approve',a.recommendation);
-    rp.onclick=()=>{box.hidden=!box.hidden;if(!box.hidden)ta.focus()};
-    send.onclick=()=>{if(!ta.value.trim()){ta.focus();return}answerAsk(a,'reply',ta.value.trim())};
-    ul.appendChild(li)}
-  $('answeredSum').textContent=`ANSWERED · ${done.length}`;
-  const al=$('answeredList');al.innerHTML='';
-  for(const a of done.slice(-12).reverse()){const li=document.createElement('li');const to=document.createElement('span');to.className='to';to.textContent=(a.project||'ALL').toUpperCase();const st=document.createElement('span');st.className='st answered';st.textContent=a.action==='approve'?'APPROVED':'REPLIED';const tx=document.createElement('span');tx.className='txt';tx.textContent=a.title;const nt=document.createElement('span');nt.className='note';nt.textContent=a.answer;li.append(to,st,tx,nt);al.appendChild(li)}
-  // decree recipients
-  // one checkbox per town; a herald rides to each town ticked
-  const box=$('decreeTo'),was=new Set([...box.querySelectorAll('input:checked')].map(i=>i.value));box.innerHTML='';
-  for(const v of [...villages.values()].filter(x=>x.thKey!=='crown')){const l=document.createElement('label');l.className='recip';
-    const i=document.createElement('input');i.type='checkbox';i.value=v.name;i.checked=was.has(v.name);i.addEventListener('change',syncRecipAll);
-    const k=document.createElement('i'),sw=document.createElement('span');sw.className='sw2';sw.style.background=themeColour(v);const tx=document.createElement('span');tx.textContent=placeName(v);
-    l.title=v.name+' owner';l.append(i,k,sw,tx);box.appendChild(l)}
-  syncRecipAll();
-  const dl=$('decreeList');dl.innerHTML='';
-  const ds=[...DECREES].sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt))).slice(0,10);
-  if(!ds.length){const e=document.createElement('li');e.className='empty2';e.style.cssText='background:none;border:0;padding:0';e.textContent='No decrees sent yet.';dl.appendChild(e)}
-  for(const d of ds){const li=document.createElement('li');const to=document.createElement('span');to.className='to';const dl2=d.lanes||[],lv=dl2.length?villages.get(d.to):null,ln=lv?dl2.map(id=>{const L=lv.lanes.find(x=>x.id===id);return L?L.role:id.split('--').pop()}).join(', '):'';to.textContent=(d.to==='all'?'ALL OWNERS':d.to==='overseer'?'OVERSEER':d.to.toUpperCase())+(ln?' · '+(d.kind==='nudge'?'BACK TO WORK: ':'')+ln.toUpperCase():'')+(d.createdAt?' · '+fmtAgo(d.createdAt):'');
-    const st=document.createElement('span');st.className='st '+d.status;const seen=LINK.overseer&&Date.parse(LINK.overseer)>=Date.parse(d.createdAt||0);st.textContent=d.status==='queued'?(seen?'ON THE ROAD':'WAITING FOR OVERSEER'):d.status.toUpperCase();
-    const tx=document.createElement('span');tx.className='txt';tx.textContent=d.text;li.append(to,st,tx);
-    if(d.note){const nt=document.createElement('span');nt.className='note';nt.textContent=d.note;li.appendChild(nt)}dl.appendChild(li)}
-  const q=DECREES.filter(d=>d.status==='queued').length;
-  $('courtMeta').textContent=`${open.length} ask${open.length===1?'':'s'} · ${q} decree${q===1?'':'s'} on the road · ${LINK.overseer?'overseer checked in '+(fmtAgo(LINK.overseer)==='now'?'just now':fmtAgo(LINK.overseer)+' ago'):'overseer not connected yet'}`;
-  renderLink();
-  $('brief').textContent=overseerBrief();
-  if(active===COURT)renderCourtHUD();
-  // a lane's speech bubble and the message window show how your last message is getting on
-  if(active&&active!==COURT&&active.sel){const L=active.lanes.find(x=>x.id===active.sel);if(L)laneActions(active,L)}
-  if(!$('msgView').hidden&&document.activeElement!==$('msgText'))renderMsg();
-}
-async function answerAsk(a,action,text){achieve('answer');
-  const patch={status:'answered',action,answer:text||'',answeredAt:new Date().toISOString(),relayed:false};
-  if(STORE&&mode!=='sample'&&!a.id.startsWith('s-')){try{await STORE.doc('asks/'+a.id).update(patch);toast('Answer sent to the overseer')}catch(e){toast('Could not save the answer. Try again.');return}}
-  else{Object.assign(a,patch);toast('Sample answer recorded on this page only')}
-  // the herald rides out with the answer, as with a decree
-  COURT.sent=(performance.now()-T0)/1000;COURT.sentN=1;sfx('fanfare');renderCourt();renderLabels();
-}
-// answers the overseer has not yet passed on travel like decrees: the herald carries each to its project's town
-function answersOnRoad(){return ASKS.filter(a=>a.status==='answered'&&a.relayed===false&&a.project).map(a=>({to:a.project,createdAt:a.answeredAt,status:'queued',answer:1}))}
-function recipBoxes(){return [...$('decreeTo').querySelectorAll('input')]}
-function syncRecipAll(){const b=recipBoxes(),all=b.length&&b.every(i=>i.checked);$('recipAll').textContent=all?'UNSELECT ALL':'SELECT ALL';$('recipAll').setAttribute('aria-pressed',String(all));
-  const n=b.filter(i=>i.checked).length;$('decreeSend').textContent=n>1?`SEND ${n} DECREES ▸`:'SEND DECREE ▸'}
-// one decree per town, so each owner gets their own herald and their own delivery status
-// a message or a nudge for chosen lanes of one project: the overseer delivers it to each lane, or through its owner if a lane has gone quiet
-async function sendToLanes(v,ids,text,kind){const now=new Date().toISOString(),d={to:v.name,lanes:ids,kind,text,status:'queued',createdAt:now,from:rulerName()};
-  if(STORE&&mode!=='sample'){try{await STORE.collection('decrees').add(d)}catch(e){toast('Could not send. Try again.');return false}toast(kind==='nudge'?'The herald is off to get them back to work':'Message sent. A herald is on the road.')}
-  else{DECREES.push(Object.assign({id:'local-'+Date.now()},d));toast(kind==='nudge'?'Sample: a herald rides out, on this page only':'Sample message: shown on this page only')}
-  COURT.sent=(performance.now()-T0)/1000;COURT.sentN=1;sfx(kind==='nudge'?'fanfare':'ok');renderCourt();if(active&&active!==COURT)renderStatus(active);if(!$('msgView').hidden)renderMsg();return true}
-function lanePost(L){return DECREES.filter(d=>d.lanes&&d.lanes.includes(L.id)).sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)))[0]||null}
-async function sendDecree(list,text){achieve('decree');
-  const now=new Date().toISOString(),docs=list.map(to=>({to,text,status:'queued',createdAt:now,from:rulerName()}));
-  if(STORE&&mode!=='sample'){try{for(const d of docs)await STORE.collection('decrees').add(d);toast(docs.length>1?`${docs.length} decrees sent. ${docs.length} heralds are on the road.`:'Decree sent. The Royal Herald is on the road.')}catch(e){toast('Could not send the decree. Try again.');return false}}
-  else{docs.forEach((d,k)=>DECREES.push(Object.assign({id:'local-'+Date.now()+'-'+k},d)));toast(docs.length>1?`Sample: ${docs.length} heralds, shown on this page only`:'Sample decree: shown on this page only')}
-  COURT.sent=(performance.now()-T0)/1000;COURT.sentN=docs.length;sfx('fanfare');renderCourt();return true;
-}
-// The one prompt the whole game runs on. It is pasted into whichever Claude session coordinates the others (the overseer);
-// it surveys every project once so the realm can be built, then keeps it live every cycle.
-function ownerSurvey(){return `${rulerName()==='the ruler'?'Your lead':rulerName()} is mapping every project into a live kingdom view. Answer from what you already know about your project: do not open files, run tools or start subagents for this. Reply with only this JSON, filled in, nothing else:
-{
-  "name": "the project's name, exactly as you call it",
-  "pitch": "one sentence: what the product is and who it is for",
-  "audience": "who uses it",
-  "stage": "idea | building | beta | live",
-  "platforms": ["ios", "android", "web", "api", ...],
-  "tags": ["3 to 6 single words for the product's world, e.g. marketplace, health, family, streaming, research, finance"],
-  "lanes": [
-    {"id": "short-id", "role": "one of: owner, coordinator, design, content, ios, android, web, website, web app, backend, data, qa, analyst, recipes, exercise, trading desk", "owns": "one short sentence: what this lane is responsible for", "handsTo": ["ids of lanes it passes work to"]}
-  ],
-  "links": [{"to": "another project's name", "why": "what the two share"}],
-  "roadmap": {"done": 0, "total": 0, "next": "the next milestone", "steps": [{"step": "each checklist item in ROADMAP.md, in order, under 80 characters", "done": false, "phase": "the heading it sits under, or empty"}]}
-}
-List every lane you run, including yourself as role "owner" and lanes that are idle or paused. Leave links empty if there are none.`}
-function surveySteps(){const K=gameName(),R=rulerName();return `SURVEY THE REALM
- 1. Get realm/config. If it is missing, set {kingdom: "${K}", castle: "${castleName()}", ruler: "${R}", url: the artifact link}; otherwise leave it alone.
- 2. Send each project's owner the OWNER SURVEY below, word for word, the way you normally pass messages to owners. Then set realm/progress to {asked: [every project's name], answered: [], updated: now}: the page shows ${R} who has replied while they wait.
- 3. If a reply is prose, turn it into the fields yourself. If stage, audience, tags or lanes are missing, ask that owner once for just those; never invent them. handsTo, links and roadmap are optional.
- 4. As soon as each owner answers, write THAT project straight away in one batch; don't wait for the others, so its town appears for ${R} at once:
-    - projects/<project-slug>: the fields as given, plus updated. Leave out roadmap. Never remove an existing "kind" or "place": ${R} chose those on the page.
-    - roadmaps/<project-slug> for each roadmap answer: project, done, total, pct (round(done/total*100)), next, steps (the checklist as given, at most 120 items).
-    - lanes/<project-slug>--<lane id> for every roster lane: product (the project's name exactly as in its projects doc), lane, role, task, state, progress, stepsDone, stepsTotal, updated (stepsDone and stepsTotal come from the task's checklist; leave them out if the task has none). If you already have the lane's current status, use it; otherwise task = its "owns" sentence, state "idle", progress 0.
-    - delete any older lanes doc for the same lane under a different id.
-    - realm/progress: add the project's name to answered, and set updated.
- 5. Check from each batch result, without reading again: the project has a projects doc, every roster lane has exactly one lanes doc, every product name matches a project exactly.
- 6. If an owner hasn't answered by your next cycle, ask once more; carry on with everything else meanwhile.
-
-OWNER SURVEY (send this to each owner):
-"""
-${ownerSurvey()}
-"""`}
-function overseerBrief(){const K=gameName(),R=rulerName(),U=artUrl();return `You are the Global overseer for ${K}, a live game-world view of ${R}'s Claude projects: ${U}
-Each project is drawn as a town, each lane as a character with a building, and ${R} answers your asks and sends decrees from the castle. The page draws everything itself from a fixed set of town styles, buildings and characters: you only ever write short data records, never art, layouts or names for towns (${R} picks those on the page).
-
-Use the ArtifactData tool on that URL. Collections: realm, projects, lanes, roadmaps, asks, decrees. Use "update" (merge) on docs that exist, so you never wipe fields someone else set. Writes to an existing doc need its version: keep the versions each write result gives you, and only read a doc again if a write is refused. Slugs: lower-case, each run of spaces or punctuation becomes one dash, no dash at either end ("Moss & Stone" is moss-stone). Times: ISO 8601 UTC, taken from a clock once per cycle.
-
-KEEP IT RUNNING: run this as a loop so ${K} stays live without ${R} prompting you, for example /loop 10m Run the ${K} overseer cycle. Keep Remote Control on so your owners can reach you.
-
-KEEP IT CHEAP: this runs every cycle, so spend as few tokens as you can.
- - Never read the page itself. Read only what the steps below name; prefer get or a filtered query to listing a whole collection.
- - All of a cycle's writes go in one batch (the survey is the exception: each project is written as its owner answers). If nothing changed, the heartbeat is the only write.
- - Ask owners in one short message each, for one-line answers about only what changed since their last report. A task is one line, under 80 characters.
- - Survey only when part A says so.
-
-A. SURVEY: the first time you read this, whenever a project or lane is added, removed or changes role, and when a decree to "overseer" asks for it: get realm/survey and follow its steps. If that doc doesn't exist yet, ask ${R} to open ${K} once, then carry on with part B.
-
-B. EVERY CYCLE
- 1. Two queries first: decrees where status == "queued", and asks where status == "answered" and relayed == false.
- 2. decrees with a "lanes" list are for those lanes of that project ("to"), sent from a lane's speech bubble or the town's message button:
-    - kind "message": deliver the text to each listed lane, quoted exactly and saying it came from ${R} via ${K}.
-    - kind "nudge": tell each listed lane to check with its owner for its next task now; tell that project's owner to give those lanes their next task, and to restart its /loop if it has stopped.
-    - A lane you can't reach (its session has stopped or Remote Control is off): pass its part to the owner instead, and set that lane's asleep true. If neither lane nor owner answers, set status "unreachable" with a one-line note on what ${R} should do (for example: reopen the Pip iOS session in Claude Code and turn Remote Control back on).
-    - Otherwise set status "delivered", deliveredAt and deliveredTo, then "done" with a one-line note once the lane confirms.
-    Other decrees: "to" is a project name, "all" (every owner) or "overseer" (for you: do it, then set status "done", deliveredTo "overseer" and a one-line note). Deliver the others to that project's owner the way you normally pass on ${R}'s instructions, quoting the text exactly and saying it came from ${R} via the throne room. Then set status "delivered", deliveredAt and deliveredTo (the lane you sent it to). If you can't reach that owner, leave it queued with a note saying why. When the owner reports back, set status "done" with a one-line note.
- 3. answered asks: pass the answer to that project's owner, then set relayed true.
- 4. lanes: ask each owner what changed for any lane in their project since their last report. For each changed lane update task, state (working | waiting | blocked | idle | done), stepsDone and stepsTotal (the lane's task checklist: steps ticked and steps in total; set progress to round(stepsDone/stepsTotal*100)), or progress 0-100 only for a task with no checklist, waitingOn (a few words on what it waits on or is blocked by), talkingTo (another project's name, if it works with one), helpers (running subagent tasks). Clear what stopped being true: waitingOn "", talkingTo "", helpers [], and asleep false for any lane that answered. Keep product and lane as they are.
- 5. asks: each new question only ${R} can answer becomes asks/<project-slug>--<short-topic-slug> with project (exact name), title, detail, recommendation, urgent (true/false), status "open", createdAt.
- 6. roadmaps: when an owner reports roadmap progress, update that project's roadmaps doc: done, total, pct, next and steps (every ROADMAP.md checklist item in order as {step, done, phase}, at most 120). If a doc has no steps yet, ask its owner for the checklist once.
- 7. One batch for everything above that changed, plus the HEARTBEAT: lanes/global-overseer with product "The Crown", role "global overseer", task (one line on this cycle), state "idle", updated now. The heartbeat goes in every cycle: it is how ${K} shows ${R} you are connected.`}
-function initCourt(){
-$('decreeForm').addEventListener('submit',async e=>{e.preventDefault();const ta=$('decreeText'),txt=ta.value.trim();if(!txt){ta.focus();return}
-  const to=recipBoxes().filter(i=>i.checked).map(i=>i.value);if(!to.length){toast('Choose at least one town');recipBoxes()[0]?.focus();return}
-  $('decreeSend').disabled=true;const ok=await sendDecree(to,txt);$('decreeSend').disabled=false;if(ok)ta.value=''});
-$('recipAll').addEventListener('click',()=>{const b=recipBoxes(),all=b.every(i=>i.checked);b.forEach(i=>i.checked=!all);syncRecipAll()});
-const copyBrief=async(btn,pre,label)=>{try{await navigator.clipboard.writeText(overseerBrief());btn.textContent='COPIED'}catch{const r=document.createRange();r.selectNodeContents(pre);const s=getSelection();s.removeAllRanges();s.addRange(r);btn.textContent='SELECTED, PRESS COPY'}setTimeout(()=>btn.textContent=label,2000)};
-$('briefCopy').addEventListener('click',async e=>{try{await navigator.clipboard.writeText(overseerBrief());e.target.textContent='COPIED'}catch{const r=document.createRange();r.selectNodeContents($('brief'));const s=getSelection();s.removeAllRanges();s.addRange(r);e.target.textContent='SELECTED, PRESS COPY'}setTimeout(()=>e.target.textContent='COPY BRIEF',2000)});
-}
-function layoutCourt(){const mg=viewMargin(COURT.W,COURT.H);
-  if(COURT.cv&&COURT.OX>=mg[0]&&COURT.OY>=mg[1])return;
-  COURT.OX=mg[0];COURT.OY=mg[1];COURT.FW=COURT.W+2*COURT.OX;COURT.FH=COURT.H+2*COURT.OY;
-  if(!COURT.cv)COURT.cv=document.createElement('canvas');COURT.cv.width=COURT.FW;COURT.cv.height=COURT.FH;COURT.ctx=COURT.cv.getContext('2d');COURT.ctx.imageSmoothingEnabled=false;COURT.bg=null}
-
-function renderLink(){const el=document.getElementById('linkState');if(!el)return;el.textContent='';
-  const q=DECREES.filter(d=>d.status==='queued'&&!String(d.id).startsWith('s-')),oldest=q.map(d=>d.createdAt).sort()[0];
-  const row=(ok,txt)=>{const li=document.createElement('li');const b=document.createElement('b');b.textContent=ok===true?'●':ok===false?'●':'○';b.style.color=ok===true?'var(--ok)':ok===false?'var(--block)':'var(--wait)';li.append(b,document.createTextNode(' '+txt));el.appendChild(li)};
-  row(LINK.store,LINK.store?'Connected to the shared store.':'Not connected to the shared store: open the page from claude.ai to go live.');
-  row(LINK.overseer?(Date.now()-Date.parse(LINK.overseer)<3*3600e3):false,LINK.overseer?`Global overseer last checked in ${fmtAgo(LINK.overseer)==='now'?'just now':fmtAgo(LINK.overseer)+' ago'}.`:'The Global overseer has never checked in. Paste the setup prompt (in the throne room, or on the welcome card before the first survey) into your overseer session.');
-  {const ros=[...PROJECTS.values()].reduce((n,p)=>n+p.lanes.length,0),quiet=lanes.filter(l=>l.unreported).length;
-   const sv=[...PROJECTS.values()].filter(p=>p.lanes.length||p.pitch).length;
-   row(LINK.store?(sv>0&&sv===PROJECTS.size):null,PROJECTS.size?(sv?`${sv} of ${PROJECTS.size} project${PROJECTS.size>1?'s':''} surveyed, ${ros} lane${ros===1?'':'s'} on the rosters${quiet?`, ${quiet} not reporting yet`:''}.`:`${PROJECTS.size} project${PROJECTS.size>1?'s':''} named, none surveyed yet: towns show only the lanes that report.`):LINK.store?'No projects surveyed yet. Towns are guessed from lane names until the overseer runs the survey.':'Showing the demo kingdom.')}
-  row(LINK.lanes>0,LINK.lanes?`${LINK.lanes} live lane records, newest ${fmtAgo(LINK.newest)==='now'?'just now':fmtAgo(LINK.newest)+' ago'}.`:'No live lane records yet.');
-  if(q.length)row(LINK.overseer&&oldest&&Date.parse(LINK.overseer)>=Date.parse(oldest)?null:false,`${q.length} decree${q.length>1?'s':''} waiting to be picked up${oldest?', oldest sent '+fmtAgo(oldest)+' ago':''}.`);
-  if(STORE&&mode!=='sample'){const li=document.createElement('li'),b=document.createElement('button');b.type='button';b.className='btn small';b.textContent='ASK FOR A NEW SURVEY';b.style.marginTop='6px';
-    b.onclick=()=>sendDecree(['overseer'],'Run the realm survey again: ask every owner for their project profile and lane roster, and update projects and lanes.');li.appendChild(b);el.appendChild(li)}}
 

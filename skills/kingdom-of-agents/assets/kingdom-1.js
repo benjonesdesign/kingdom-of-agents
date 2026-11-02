@@ -1,4 +1,4 @@
-// Kingdom of Agents, part 1 of 3. The parts share one scope and load in order from kingdom.html.
+// Kingdom of Agents, part 1 of 4. The parts share one scope and load in order from kingdom.html.
 // ===================== Kingdom pack: core kit =====================
 // Style rules: hue-shifted ramps (shadows lean purple-blue, highlights lean warm), light from the top-left,
 // selective coloured outlines (each edge takes a dark version of the colour it borders, heavier on the shadow side),
@@ -872,6 +872,7 @@ const THEMES={
 };
 // names and themes come from what each project reports: see realm.js
 // a town's decorations: the free kit for everyone, the themed sets and packs with a Royal Charter
+var PACK_PROPS=new Set();  // filled by the Curiosity Tent's packs
 function dressFor(k,full){const D=DRESS[k]||DRESS.village;if(full||premium())return D;const f=a=>(a||[]).filter(p=>BASE_PROPS.has(p));return {back:f(D.back),meadow:f(D.meadow),out:f(D.out)}}
 
 // ---- ground + road tiles per theme ----
@@ -906,8 +907,11 @@ function dressTown(c,v,th){
     if(top>g.oy+20&&v.thKey!=='cave'){(hh%3?drawBush:(c,x,y,k)=>drawProp(c,'rocks',x+10,y+12))(c,g.ox+(hh%2?4:70),g.oy+4,hh%2)}
   });
   const sy=v.sy;
-  D.meadow.forEach((p,k)=>{const hh=hash(v.seed+'md'+k);const x=v.tavR+14+(hh%Math.max(20,v.W-v.tavR-40)),y=sy+24+((hh>>>7)%(v.water?70:84));
-    if(Math.hypot(x-v.featX,(y-sy-60)*1.4)<(v.fount?72:46))return;if(x<v.W-22)drawProp(c,p,x,y)});
+  // pack decorations are what someone paid to see, so they always find a clear spot; the rest stand where they fall
+  const spots=[],clear=(x,y,r)=>x<v.W-22&&Math.hypot(x-v.featX,(y-sy-60)*1.4)>=(v.fount?72:46)&&!spots.some(q=>Math.hypot(q[0]-x,q[1]-y)<r);
+  const span=Math.max(20,v.W-v.tavR-40),deep=v.water?70:84,at=(hh)=>[v.tavR+14+(hh%span),sy+24+((hh>>>7)%deep)];
+  D.meadow.filter(p=>PACK_PROPS.has(p)).forEach(p=>{for(let k=0;k<60;k++){const [x,y]=at(hash(v.seed+'pk'+p+k));if(clear(x,y,26)){drawProp(c,p,x,y);spots.push([x,y]);return}}});
+  D.meadow.forEach((p,k)=>{if(PACK_PROPS.has(p))return;const [x,y]=at(hash(v.seed+'md'+k));if(clear(x,y,18)){drawProp(c,p,x,y);spots.push([x,y])}});
   if(th.feature==='hoard'){drawProp(c,'rail',v.hoard.x-44,v.hoard.y+2);drawProp(c,'rail',v.hoard.x-28,v.hoard.y+2);drawProp(c,'minecart',v.hoard.x-36,v.hoard.y);drawProp(c,'sack',v.hoard.x+52,v.hoard.y+2);drawProp(c,'crate',v.hoard.x+64,v.hoard.y-2)}
 }
 function rockWall(c,x,y,w,h,seed){px(c,x,y,w,h,'#3a322a');for(let k=0;k<w*h/40;k++){const hh=hash(seed+'rw'+k);const rx=x+hh%w,ry=y+(hh>>>8)%h;px(c,rx,ry,5,3,'#4e443a');px(c,rx,ry,5,1,'#665a4e')}}
@@ -1292,6 +1296,7 @@ function drawTown(v,t,dt){
     actors.push({y,f:()=>drawHero(c,x,y,Object.assign({},spec,{dir:k%2?'left':'right',walk:false,frame:Math.floor(t*4),pose:(Math.floor(t/1.5+k)%2)?'talk':'idle'})),bub:{x,y,k:(Math.floor(t/1.5+k)%2)?'chat':'...'}})});
   eggTown(v,c,t,dt,L,lights,actors);
   if(v.tav&&v.tav.chand&&v.tav.chand.draw){const ch=v.tav.chand;actors.push({y:1e9,f:()=>ch.draw(c)})}
+  {const gs=gameSpot(v);if(gs)actors.push({y:gs.y,f:()=>drawGameBoard(c,gs.x,gs.y,gs.id,t)})}
   actors.sort((a,b)=>a.y-b.y);
   const holes=v.tav&&!th.indoor?tavHoles(v):null,lightsAbs=()=>lights.map(([x,y,r,col,s])=>[x+v.OX,y+v.OY,r,col,s]);
   if(L.dark>0){
@@ -1362,7 +1367,7 @@ function heraldFor(v){if(typeof DECREES==='undefined')return null;return DECREES
 // Same ground, the road north out of the gate, woods thickening with distance (live, swaying trees), the sea for harbour towns.
 function outskirts(c,v){
   const th=v.th,seed=v.seed+'out',OX=v.OX,OY=v.OY,W=v.FW,H=v.FH,wy=v.water?OY+v.water.y:Infinity,cave=th.ground==='cave';
-  const D=dressFor(v.thKey,v.full).out||[],placed=[];
+  const Dall=dressFor(v.thKey,v.full).out||[],D=Dall.filter(p=>!PACK_PROPS.has(p)),placed=[];
   const scatter=()=>{const per=2*(v.W+v.H),n=Math.round(per/34);for(let k=0;k<n;k++){const hh=hash(seed+'pr'+k),u=(hh%1000)/1000*per,d=18+(hh>>>10)%80;let x,y;
       if(u<v.W){x=OX+u;y=OY-d}else if(u<v.W+v.H){x=OX+v.W+d;y=OY+(u-v.W)}else if(u<2*v.W+v.H){x=OX+(u-v.W-v.H);y=OY+v.H+d}else{x=OX-d;y=OY+(u-2*v.W-v.H)}
       if(y+4>wy||x<8||y<12||x>W-8||y>H-4)continue;if(v.gate==='W'?(x<OX&&Math.abs(y-(OY+gateRow(v)*TS+8))<22):(Math.abs(x-(OX+VX))<22&&(v.gateS?y>OY+v.H:y<OY)))continue;if(placed.some(q=>Math.hypot(q[0]-x,q[1]-y)<22))continue;
@@ -1372,6 +1377,8 @@ function outskirts(c,v){
   const gx=OX+VX-8;if(v.gate==='W'){const gy=OY+gateRow(v)*TS;for(let x=0;x<OX+8;x+=16)roadTile(c,x,gy,hash(seed+'rd'+x),{t:1,b:1,l:0,r:0},th)}else if(v.gateS){for(let y=OY+v.H-8;y<H;y+=16)roadTile(c,gx,y,hash(seed+'rd'+y),{t:0,b:0,l:1,r:1},th)}else for(let y=0;y<OY+8;y+=16)roadTile(c,gx,y,hash(seed+'rd'+y),{t:0,b:0,l:1,r:1},th);
   if(v.water){for(let y=wy;y<H;y++)px(c,0,y,W,1,y<wy+3?PAL.sandD:y<wy+5?PAL.foam:(y-wy)%7===0?PAL.waterD:PAL.water)}
   const inTown=(x,y)=>x>OX-30&&x<OX+v.W+2&&y>OY-40&&y<OY+v.H+2;
+  // pack decorations for the outskirts get a spot of their own: on the shore beside a harbour, else beside the town
+  Dall.filter(p=>PACK_PROPS.has(p)).forEach((p,k)=>{const x=Math.min(W-14,OX+v.W+34+k*30),y=v.water?wy-3:OY+Math.round(v.H*.45)+k*20;drawProp(c,p,x,y);placed.push([x,y],[x,y-18])});
   scatter();
   for(let y=-24;y<H;y+=20)for(let x=-24;x<W;x+=22){const hh=hash(seed+'t'+x+','+y),tx=x+(hh%12),ty=y+((hh>>>5)%10);
     if(inTown(tx,ty)||ty+34>wy)continue;if(placed.some(q=>Math.abs(q[0]-(tx+16))<22&&q[1]-(ty+40)>-10&&q[1]-(ty+40)<26))continue;if(v.gate==='W'?(tx+16<OX+4&&Math.abs(ty+40-(OY+gateRow(v)*TS+8))<30):(Math.abs(tx+16-(OX+VX))<28&&(v.gateS?ty+40>OY+v.H:ty<OY)))continue;
@@ -1480,7 +1487,8 @@ function cleanProject(id,d){
   const lanes=Array.isArray(d.lanes)?d.lanes.slice(0,16).map((l,i)=>({id:slug(str(l&&l.id,30)||str(l&&l.role,24)||'lane-'+i),role:str(l&&l.role,24)||'lane',owns:str(l&&l.owns,140),handsTo:arr(l&&l.handsTo,4,30)})):[];
   const links=Array.isArray(d.links)?d.links.slice(0,6).map(l=>typeof l==='string'?{to:str(l,64),why:''}:{to:str(l&&l.to,64),why:str(l&&l.why,100)}).filter(l=>l.to):[];
   return {id,name:str(d.name,64)||id,pitch:str(d.pitch,160),audience:str(d.audience,80),stage:STAGES.includes(String(d.stage).toLowerCase())?String(d.stage).toLowerCase():'',
-    platforms:arr(d.platforms,6,16),tags:arr(d.tags,8,24),lanes,links,kind:KINDS.includes(String(d.kind).toLowerCase())?String(d.kind).toLowerCase():'',place:str(d.place,28),updated:str(d.updated,30)}}
+    platforms:arr(d.platforms,6,16),tags:arr(d.tags,8,24),lanes,links,kind:KINDS.includes(String(d.kind).toLowerCase())?String(d.kind).toLowerCase():'',place:str(d.place,28),updated:str(d.updated,30),
+    cloud:!!d.cloud,wake:/^trig_[A-Za-z0-9]{6,60}$/.test(String(d.wake||''))?String(d.wake):'',page:/^https:\/\/claude\.ai\//.test(String(d.page||''))?str(d.page,200):''}}
 function profileOf(name){return PROJECTS.get(String(name||'').toLowerCase())||null}
 
 // ---- what kind of place each project is ----
