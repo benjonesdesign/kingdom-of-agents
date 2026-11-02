@@ -331,6 +331,7 @@ details.sub2 summary{font-family:var(--display);font-size:var(--fs-d-sm);color:v
 .chip{all:unset;box-sizing:border-box;cursor:pointer;font-size:var(--fs-b-sm);padding:var(--sp-1) var(--sp-2);border:2px solid var(--line);background:var(--panel2);color:var(--fg);min-height:32px}
 .chip.on{border-color:var(--gold);background:var(--gold-tint);color:var(--gold)}.chip.shuffle{font-family:var(--display);font-size:var(--fs-d-sm);color:var(--muted)}
 .chip:focus-visible,.style:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.faq details{border-top:2px solid var(--line);padding:var(--sp-2) 0}.faq summary{cursor:pointer;font-weight:700;color:var(--gold)}.faq summary:focus-visible{outline:2px solid var(--gold);outline-offset:2px}.faq p,.faq li{font-size:var(--fs-b);line-height:1.45}.faq ul{padding-left:1.2em;margin:var(--sp-1) 0}
 .fbform{display:flex;flex-direction:column;gap:var(--sp-2)}.fbkinds{border:0;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:var(--sp-1)}.fbkinds legend,.fblab{font-family:var(--display);font-size:var(--fs-d-sm);color:var(--muted);margin-bottom:var(--sp-1)}
 #fbText{box-sizing:border-box;width:100%;font:inherit;font-size:var(--fs-b);background:var(--panel2);color:var(--fg);border:2px solid var(--line);padding:var(--sp-2);resize:vertical;min-height:110px}#fbText:focus-visible{outline:2px solid var(--gold);outline-offset:2px}.fbnote{margin:0;font-size:var(--fs-b-sm);color:var(--muted)}
 .obtown{border-top:2px solid var(--line);padding-top:var(--sp-3);margin-top:var(--sp-3)}.obtown h3{font-family:var(--display);font-size:var(--fs-d-md);color:var(--fg);margin:0 0 var(--sp-1)}
@@ -453,6 +454,7 @@ body.onboarding .wtitle{display:none}
     <button class="mrow" type="button" data-view="settings"><b>SETTINGS</b><span id="sumSettings"></span></button>
     <button class="mrow" type="button" data-view="feedback"><b>FEEDBACK</b><span>Report a bug, suggest an improvement or share an idea</span></button>
     <button class="mrow" type="button" data-view="about"><b>ABOUT</b><span id="sumAbout"></span></button>
+    <button class="mrow" type="button" data-view="faq"><b>QUESTIONS</b><span>Tokens, Claude plans, your data and the Royal Charter</span></button>
     <button class="btn primary mguide" id="guideBtn" type="button">SET UP YOUR LANES</button>
   </nav>
 
@@ -546,6 +548,25 @@ body.onboarding .wtitle{display:none}
       <div class="obacts"><button type="submit" class="btn primary" id="fbSend">SEND FEEDBACK ▸</button></div>
       <p class="fbnote" id="fbState" role="status"></p>
     </form>
+  </section>
+
+  <section class="mview faq" data-view="faq" hidden aria-labelledby="mvFaq">
+    <button class="btn small mback" type="button">◂ MENU</button><h2 id="mvFaq">QUESTIONS</h2>
+    <details open><summary>How many tokens does this use each day?</summary>
+      <p>The kingdom page itself uses none. It only draws what your own Claude Code sessions write to it.</p>
+      <p>The tokens come from your overseer, the one session that checks on your projects and keeps the kingdom up to date. They count towards your Claude plan like any other Claude Code work. How much depends on how often it checks and how many projects it looks after:</p>
+      <ul><li>A full round, asking each project's Owner what changed, runs every 15 minutes.</li>
+      <li>While this page is open, the overseer also takes a quick look every minute for decrees and answers. That stops when you close the page.</li>
+      <li>Every check re-sends the overseer's conversation, mostly from Claude's cache, so an overseer that has run for days costs more per check than a fresh one.</li></ul>
+      <p>Your lanes do the same work they would without the kingdom: it only asks them for one-line reports.</p>
+      <p>To see the figure for your own setup, run <b>/usage</b> in your overseer session. Its Loops section shows the tokens per run, over a day or a week. To use less, give your overseer a slower loop, such as <b>/loop 30m</b>, close the kingdom when you're not watching, and start a fresh overseer session now and then.</p></details>
+    <details open><summary>What Claude plans is it suitable for?</summary>
+      <p>Any plan that includes Claude Code: <b>Pro, Max, Team or Enterprise</b>. The overseer and your lanes are Claude Code sessions, so the free plan can't run them.</p>
+      <ul><li><b>Pro</b>: good for one or two projects with a few lanes. Use a slower overseer loop and close the kingdom when you're not watching.</li>
+      <li><b>Max</b>, or a Premium seat on Team or Enterprise: suits several projects with lanes working most of the day, which is what the kingdom is built for.</li>
+      <li><b>Team and Enterprise</b>: everyone's overseer and lanes draw on their own seat. Share one kingdom through the Guild Hall in the Royal Council.</li></ul></details>
+    <details><summary>Is it free?</summary><p>Yes. A one-off Royal Charter (£7.99) from the Curiosity Tent unlocks every town style, character, local weather and every pack to come.</p></details>
+    <details><summary>Where is my kingdom's data kept?</summary><p>In your own Claude account, in this page's own storage. Pip Living never sees your projects. The only thing that ever reaches us is feedback you choose to send.</p></details>
   </section>
 
   <section class="mview" data-view="about" hidden aria-labelledby="mvAbout">

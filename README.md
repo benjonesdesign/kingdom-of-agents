@@ -6,6 +6,24 @@ It is free to play. A one-off Royal Charter (£7.99), sold inside the game, unlo
 
 Made by [Pip Living](https://www.pipliving.com/labs/kingdomofagents). An independent game, not made by or affiliated with Anthropic.
 
+## Questions
+
+**How many tokens does it use each day?**
+The kingdom page itself uses none: it only draws what your own Claude Code sessions write to it. The tokens come from your overseer, the one session that checks on your projects and keeps the kingdom up to date, and they count towards your Claude plan like any other Claude Code work. How much depends on how often it checks and how many projects it looks after:
+
+- A full round, asking each project's Owner what changed, runs every 15 minutes.
+- While the kingdom is open, the overseer also takes a quick look every minute for decrees and answers. That stops when you close it.
+- Every check re-sends the overseer's conversation, mostly from Claude's cache, so an overseer that has run for days costs more per check than a fresh one.
+
+Your lanes do the same work they would without the kingdom: it only asks them for one-line reports. To see the figure for your own setup, run `/usage` in your overseer session: its Loops section shows the tokens per run, over a day or a week. To use less, give your overseer a slower loop (`/loop 30m …`), close the kingdom when you're not watching, and start a fresh overseer session now and then.
+
+**What Claude plans is it suitable for?**
+Any plan that includes Claude Code: Pro, Max, Team or Enterprise. The overseer and your lanes are Claude Code sessions, so the free plan can't run them.
+
+- **Pro**: good for one or two projects with a few lanes. Use a slower overseer loop and close the kingdom when you're not watching.
+- **Max**, or a Premium seat on Team or Enterprise: suits several projects with lanes working most of the day, which is what the kingdom is built for.
+- **Team and Enterprise**: everyone's overseer and lanes draw on their own seat. Share one kingdom through the Guild Hall in the Royal Council.
+
 ## Install
 
 In the Claude app or on claude.ai, open **Customize**, then **Plugins**, and add **Kingdom of Agents**. Before it is listed in the directory you can add it by repository instead: **Plugins > Add > Add marketplace**, then enter `benjonesdesign/kingdom-of-agents`.

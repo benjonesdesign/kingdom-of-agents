@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.10.1
+
+- Questions in the menu: how many tokens the kingdom uses each day, which Claude plans it suits, whether it's free and where your data is kept.
+
 ## 2.10.0
 
 **Copy the setup prompt into your overseer again** so it reports what the Royal Council needs.
